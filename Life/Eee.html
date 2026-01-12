@@ -12,7 +12,6 @@
   --card:#ffffff;
   --radius:14px;
   --text:#1f2937;
-  --muted:#6b7280;
 }
 *{box-sizing:border-box}
 body{
@@ -30,26 +29,23 @@ body{
   padding:20px;
 }
 h1,h2{margin:0;color:var(--primary)}
-small{color:var(--muted)}
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
   gap:14px;
 }
-label{font-size:14px;margin-bottom:6px;display:block}
-.field{display:flex;gap:8px}
+.field{display:flex;gap:6px}
 input,select{
-  height:46px;
-  padding:8px 10px;
-  border-radius:10px;
+  height:44px;
+  padding:8px;
+  border-radius:8px;
   border:1px solid #d1d5db;
-  font-size:15px;
   width:100%;
 }
 select{max-width:90px}
 button{
   width:100%;
-  height:50px;
+  height:48px;
   background:var(--primary);
   color:#fff;
   border:none;
@@ -59,25 +55,19 @@ button{
   margin-top:10px;
 }
 .result{
-  margin-top:14px;
+  margin-top:12px;
   background:#f9fafb;
-  border-radius:12px;
-  padding:14px;
+  padding:12px;
+  border-radius:10px;
 }
 .badge{
   display:inline-block;
   padding:6px 14px;
-  border-radius:999px;
   background:#e0e7ff;
-  color:#1e3a8a;
+  border-radius:999px;
   margin:6px 6px 0 0;
 }
 .warning{color:#b91c1c;font-weight:600}
-@media print{
-  button,input,select{display:none}
-  body{background:#fff}
-  .card{box-shadow:none}
-}
 </style>
 </head>
 
@@ -86,166 +76,195 @@ button{
 
 <div class="card">
 <h1>⚡ Electrical Engineering Calculator</h1>
-<small>IEEE / IEC compliant · High-accuracy electrical formulas</small>
-</div>
-
-<!-- OHM'S LAW -->
-<div class="card">
-<h2>Ohm’s Law</h2>
-<div class="grid">
-  <div>
-    <label>Voltage</label>
-    <div class="field">
-      <input id="v1">
-      <select id="v1u">
-        <option value="1">V</option>
-        <option value="1000">kV</option>
-        <option value="0.001">mV</option>
-      </select>
-    </div>
-  </div>
-  <div>
-    <label>Current</label>
-    <div class="field">
-      <input id="i1">
-      <select id="i1u">
-        <option value="1">A</option>
-        <option value="0.001">mA</option>
-      </select>
-    </div>
-  </div>
-  <div>
-    <label>Resistance</label>
-    <div class="field">
-      <input id="r1">
-      <select id="r1u">
-        <option value="1">Ω</option>
-        <option value="1000">kΩ</option>
-        <option value="1000000">MΩ</option>
-      </select>
-    </div>
-  </div>
-</div>
-<button onclick="ohmsLaw()">Calculate</button>
-<div id="out1" class="result"></div>
-</div>
-
-<!-- ELECTRICAL POWER -->
-<div class="card">
-<h2>Electrical Power</h2>
-<div class="grid">
-  <div>
-    <label>Voltage</label>
-    <div class="field">
-      <input id="v2">
-      <select id="v2u">
-        <option value="1">V</option>
-        <option value="1000">kV</option>
-      </select>
-    </div>
-  </div>
-  <div>
-    <label>Current</label>
-    <div class="field">
-      <input id="i2">
-      <select id="i2u">
-        <option value="1">A</option>
-        <option value="0.001">mA</option>
-      </select>
-    </div>
-  </div>
-</div>
-<button onclick="powerCalc()">Calculate</button>
-<div id="out2" class="result"></div>
-</div>
-
-<!-- ENERGY -->
-<div class="card">
-<h2>Energy Consumption</h2>
-<div class="grid">
-  <div>
-    <label>Power</label>
-    <div class="field">
-      <input id="p3">
-      <select id="p3u">
-        <option value="1">W</option>
-        <option value="1000">kW</option>
-        <option value="1000000">MW</option>
-      </select>
-    </div>
-  </div>
-  <div>
-    <label>Time (hours)</label>
-    <input id="t3">
-  </div>
-</div>
-<button onclick="energyCalc()">Calculate</button>
-<div id="out3" class="result"></div>
-</div>
-
+<small>IEEE / IEC compliant · Unit-aware · High-accuracy formulas</small>
 </div>
 
 <script>
-const num = x => {
-  const v = parseFloat(x);
-  return Number.isFinite(v) ? v : null;
-};
-const bad = m => `<span class="warning">${m}</span>`;
-
-/* OHM'S LAW */
-function ohmsLaw(){
-  const vRaw = num(v1.value);
-  const iRaw = num(i1.value);
-  const rRaw = num(r1.value);
-
-  const V = vRaw !== null ? vRaw * num(v1u.value) : null;
-  const I = iRaw !== null ? iRaw * num(i1u.value) : null;
-  const R = rRaw !== null ? rRaw * num(r1u.value) : null;
-
-  const known = [V,I,R].filter(v => v !== null).length;
-  if(known !== 2) return out1.innerHTML = bad("Enter exactly TWO values.");
-
-  let v = V, i = I, r = R;
-
-  if(v === null){
-    if(r === 0) return out1.innerHTML = bad("Resistance cannot be zero.");
-    v = i * r;
-  }
-  if(i === null){
-    if(r === 0) return out1.innerHTML = bad("Resistance cannot be zero.");
-    i = v / r;
-  }
-  if(r === null){
-    if(i === 0) return out1.innerHTML = bad("Current cannot be zero.");
-    r = v / i;
-  }
-
-  out1.innerHTML = `
-    <span class="badge">Voltage: ${v.toFixed(3)} V</span>
-    <span class="badge">Current: ${i.toFixed(3)} A</span>
-    <span class="badge">Resistance: ${r.toFixed(3)} Ω</span>`;
-}
-
-/* POWER */
-function powerCalc(){
-  const V = num(v2.value);
-  const I = num(i2.value);
-  if(V === null || I === null) return out2.innerHTML = bad("Enter valid voltage and current.");
-  const v = V * num(v2u.value);
-  const i = I * num(i2u.value);
-  out2.innerHTML = `<span class="badge">Power: ${(v*i).toFixed(3)} W</span>`;
-}
-
-/* ENERGY */
-function energyCalc(){
-  const P = num(p3.value);
-  const T = num(t3.value);
-  if(P === null || T === null || T < 0) return out3.innerHTML = bad("Enter valid power and time.");
-  const p = P * num(p3u.value);
-  const energy = (p * T) / 1000;
-  out3.innerHTML = `<span class="badge">Energy: ${energy.toFixed(3)} kWh</span>`;
+const num=x=>Number.isFinite(parseFloat(x))?parseFloat(x):null;
+const bad=m=>`<span class="warning">${m}</span>`;
+function scale(v,u){
+  const a=Math.abs(v);
+  if(a>=1e6) return (v/1e6).toFixed(3)+" "+u[2];
+  if(a>=1e3) return (v/1e3).toFixed(3)+" "+u[1];
+  return v.toFixed(3)+" "+u[0];
 }
 </script>
 
+<!-- 1. OHM'S LAW -->
+<div class="card">
+<h2>Ohm’s Law</h2>
+<div class="grid">
+<div class="field"><input id="ov"><select id="ovu"><option value="1">V</option><option value="0.001">mV</option><option value="1000">kV</option></select></div>
+<div class="field"><input id="oi"><select id="oiu"><option value="1">A</option><option value="0.001">mA</option><option value="1000">kA</option></select></div>
+<div class="field"><input id="or"><select id="oru"><option value="1">Ω</option><option value="1000">kΩ</option><option value="1000000">MΩ</option></select></div>
+</div>
+<button onclick="
+let V=num(ov.value);V=V!==null?V*ovu.value:null;
+let I=num(oi.value);I=I!==null?I*oiu.value:null;
+let R=num(or.value);R=R!==null?R*oru.value:null;
+if([V,I,R].filter(x=>x!==null).length!==2)return out1.innerHTML=bad('Enter exactly two values');
+if(V===null)V=I*R;if(I===null)I=V/R;if(R===null)R=V/I;
+out1.innerHTML='<span class=badge>'+scale(V,['V','kV','MV'])+'</span>'+
+'<span class=badge>'+scale(I,['A','kA','MA'])+'</span>'+
+'<span class=badge>'+scale(R,['Ω','kΩ','MΩ'])+'</span>';
+">Calculate</button>
+<div id="out1" class="result"></div>
+</div>
+
+<!-- 2. ELECTRICAL POWER -->
+<div class="card">
+<h2>Electrical Power</h2>
+<div class="grid">
+<div class="field"><input id="pv"><select id="pvu"><option value="1">V</option><option value="1000">kV</option></select></div>
+<div class="field"><input id="pi"><select id="piu"><option value="1">A</option><option value="0.001">mA</option></select></div>
+</div>
+<button onclick="
+let V=num(pv.value)*pvu.value,I=num(pi.value)*piu.value;
+if(!V||!I)return out2.innerHTML=bad('Invalid input');
+out2.innerHTML='<span class=badge>'+scale(V*I,['W','kW','MW'])+'</span>';
+">Calculate</button>
+<div id="out2" class="result"></div>
+</div>
+
+<!-- 3. ENERGY -->
+<div class="card">
+<h2>Energy Consumption</h2>
+<div class="grid">
+<div class="field"><input id="ep"><select id="epu"><option value="1">W</option><option value="1000">kW</option><option value="1000000">MW</option></select></div>
+<input id="et" placeholder="Time (hours)">
+</div>
+<button onclick="
+let P=num(ep.value)*epu.value,T=num(et.value);
+if(!P||!T)return out3.innerHTML=bad('Invalid input');
+out3.innerHTML='<span class=badge>'+(P*T/1000).toFixed(3)+' kWh</span>';
+">Calculate</button>
+<div id="out3" class="result"></div>
+</div>
+
+<!-- 4. AC SINGLE PHASE -->
+<div class="card">
+<h2>AC Single-Phase Power</h2>
+<div class="grid">
+<input id="sv" placeholder="Voltage (V)">
+<input id="si" placeholder="Current (A)">
+<input id="spf" placeholder="Power Factor (0–1)">
+</div>
+<button onclick="
+let V=num(sv.value),I=num(si.value),pf=num(spf.value);
+if(!V||!I||pf<=0||pf>1)return out4.innerHTML=bad('Invalid input');
+out4.innerHTML='<span class=badge>'+scale(V*I*pf,['W','kW','MW'])+'</span>';
+">Calculate</button>
+<div id="out4" class="result"></div>
+</div>
+
+<!-- 5. AC THREE PHASE -->
+<div class="card">
+<h2>AC Three-Phase Power</h2>
+<div class="grid">
+<input id="tv" placeholder="Line Voltage (V)">
+<input id="ti" placeholder="Line Current (A)">
+<input id="tpf" placeholder="Power Factor (0–1)">
+</div>
+<button onclick="
+let V=num(tv.value),I=num(ti.value),pf=num(tpf.value);
+if(!V||!I||pf<=0||pf>1)return out5.innerHTML=bad('Invalid input');
+out5.innerHTML='<span class=badge>'+scale(Math.sqrt(3)*V*I*pf,['W','kW','MW'])+'</span>';
+">Calculate</button>
+<div id="out5" class="result"></div>
+</div>
+
+<!-- 6. RESISTANCE -->
+<div class="card">
+<h2>Resistance (Series / Parallel)</h2>
+<div class="grid">
+<input id="r1" placeholder="R1 (Ω)">
+<input id="r2" placeholder="R2 (Ω)">
+</div>
+<button onclick="
+let R1=num(r1.value),R2=num(r2.value);
+if(!R1||!R2)return out6.innerHTML=bad('Invalid input');
+out6.innerHTML='<span class=badge>Series: '+scale(R1+R2,['Ω','kΩ','MΩ'])+'</span>'+
+'<span class=badge>Parallel: '+scale(1/(1/R1+1/R2),['Ω','kΩ','MΩ'])+'</span>';
+">Calculate</button>
+<div id="out6" class="result"></div>
+</div>
+
+<!-- 7. CAPACITIVE REACTANCE -->
+<div class="card">
+<h2>Capacitive Reactance</h2>
+<div class="grid">
+<input id="cf" placeholder="Frequency (Hz)">
+<input id="cc" placeholder="Capacitance (F)">
+</div>
+<button onclick="
+let f=num(cf.value),c=num(cc.value);
+if(f<=0||c<=0)return out7.innerHTML=bad('Invalid input');
+out7.innerHTML='<span class=badge>'+scale(1/(2*Math.PI*f*c),['Ω','kΩ','MΩ'])+'</span>';
+">Calculate</button>
+<div id="out7" class="result"></div>
+</div>
+
+<!-- 8. INDUCTIVE REACTANCE -->
+<div class="card">
+<h2>Inductive Reactance</h2>
+<div class="grid">
+<input id="lf" placeholder="Frequency (Hz)">
+<input id="ll" placeholder="Inductance (H)">
+</div>
+<button onclick="
+let f=num(lf.value),l=num(ll.value);
+if(f<=0||l<=0)return out8.innerHTML=bad('Invalid input');
+out8.innerHTML='<span class=badge>'+scale(2*Math.PI*f*l,['Ω','kΩ','MΩ'])+'</span>';
+">Calculate</button>
+<div id="out8" class="result"></div>
+</div>
+
+<!-- 9. IMPEDANCE -->
+<div class="card">
+<h2>Impedance (R-L-C)</h2>
+<div class="grid">
+<input id="zr" placeholder="R (Ω)">
+<input id="zxl" placeholder="XL (Ω)">
+<input id="zxc" placeholder="XC (Ω)">
+</div>
+<button onclick="
+let R=num(zr.value),XL=num(zxl.value),XC=num(zxc.value);
+if(!R||XL===null||XC===null)return out9.innerHTML=bad('Invalid input');
+out9.innerHTML='<span class=badge>'+scale(Math.sqrt(R*R+(XL-XC)**2),['Ω','kΩ','MΩ'])+'</span>';
+">Calculate</button>
+<div id="out9" class="result"></div>
+</div>
+
+<!-- 10. VOLTAGE DROP -->
+<div class="card">
+<h2>Voltage Drop</h2>
+<div class="grid">
+<input id="vdI" placeholder="Current (A)">
+<input id="vdR" placeholder="Resistance (Ω)">
+</div>
+<button onclick="
+let I=num(vdI.value),R=num(vdR.value);
+if(!I||!R)return out10.innerHTML=bad('Invalid input');
+out10.innerHTML='<span class=badge>'+scale(I*R,['V','kV','MV'])+'</span>';
+">Calculate</button>
+<div id="out10" class="result"></div>
+</div>
+
+<!-- 11. EFFICIENCY -->
+<div class="card">
+<h2>Efficiency</h2>
+<div class="grid">
+<input id="eo" placeholder="Output Power (W)">
+<input id="ei" placeholder="Input Power (W)">
+</div>
+<button onclick="
+let Po=num(eo.value),Pi=num(ei.value);
+if(!Po||!Pi||Pi<=0)return out11.innerHTML=bad('Invalid input');
+out11.innerHTML='<span class=badge>'+((Po/Pi)*100).toFixed(2)+' %</span>';
+">Calculate</button>
+<div id="out11" class="result"></div>
+</div>
+
+</div>
 </body>
 </html>
