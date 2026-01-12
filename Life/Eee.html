@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Electrical Engineering Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+:root{
+  --primary:#f59e0b;
+  --bg:#f4f6fb;
+  --card:#ffffff;
+  --radius:14px;
+  --text:#1f2937;
+  --muted:#6b7280;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter,system-ui,Arial;
+  background:var(--bg);
+  color:var(--text);
+}
+.container{max-width:1200px;margin:auto;padding:16px}
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:0 12px 28px rgba(0,0,0,.08);
+  margin-bottom:22px;
+  padding:20px;
+}
+h1,h2{margin:0;color:var(--primary)}
+small{color:var(--muted)}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;
+}
+label{font-size:14px;margin-bottom:6px;display:block}
+input{
+  width:100%;
+  height:48px;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #d1d5db;
+  font-size:15px;
+}
+button{
+  width:100%;
+  height:50px;
+  background:var(--primary);
+  color:#fff;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  cursor:pointer;
+  margin-top:10px;
+}
+.result{
+  margin-top:14px;
+  background:#f9fafb;
+  border-radius:12px;
+  padding:14px;
+}
+.badge{
+  display:inline-block;
+  padding:6px 14px;
+  border-radius:999px;
+  background:#fef3c7;
+  color:#92400e;
+  margin:6px 6px 0 0;
+}
+.warning{color:#b91c1c;font-weight:600}
+@media print{
+  button,input{display:none}
+  body{background:#fff}
+  .card{box-shadow:none}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="card">
+<h1>⚡ Electrical Engineering Calculator</h1>
+<small>IEEE / IEC compliant · High-accuracy electrical formulas</small>
+</div>
+
+<!-- OHM'S LAW -->
+<div class="card">
+<h2>Ohm’s Law</h2>
+<div class="grid">
+  <div><label>Voltage (V)</label><input id="v1"></div>
+  <div><label>Current (A)</label><input id="i1"></div>
+  <div><label>Resistance (Ω)</label><input id="r1"></div>
+</div>
+<button onclick="ohmsLaw()">Calculate</button>
+<div id="out1" class="result"></div>
+</div>
+
+<!-- POWER -->
+<div class="card">
+<h2>Electrical Power</h2>
+<div class="grid">
+  <div><label>Voltage (V)</label><input id="v2"></div>
+  <div><label>Current (A)</label><input id="i2"></div>
+</div>
+<button onclick="powerCalc()">Calculate</button>
+<div id="out2" class="result"></div>
+</div>
+
+<!-- ENERGY -->
+<div class="card">
+<h2>Energy Consumption</h2>
+<div class="grid">
+  <div><label>Power (W)</label><input id="p3"></div>
+  <div><label>Time (hours)</label><input id="t3"></div>
+</div>
+<button onclick="energyCalc()">Calculate</button>
+<div id="out3" class="result"></div>
+</div>
+
+<!-- AC SINGLE PHASE -->
+<div class="card">
+<h2>AC Single-Phase Power</h2>
+<div class="grid">
+  <div><label>Voltage (V)</label><input id="v4"></div>
+  <div><label>Current (A)</label><input id="i4"></div>
+  <div><label>Power Factor (0–1)</label><input id="pf4"></div>
+</div>
+<button onclick="acSingle()">Calculate</button>
+<div id="out4" class="result"></div>
+</div>
+
+<!-- THREE PHASE -->
+<div class="card">
+<h2>AC Three-Phase Power</h2>
+<div class="grid">
+  <div><label>Line Voltage (V)</label><input id="v5"></div>
+  <div><label>Line Current (A)</label><input id="i5"></div>
+  <div><label>Power Factor (0–1)</label><input id="pf5"></div>
+</div>
+<button onclick="acThree()">Calculate</button>
+<div id="out5" class="result"></div>
+</div>
+
+<!-- REACTANCE -->
+<div class="card">
+<h2>Reactance</h2>
+<div class="grid">
+  <div><label>Frequency (Hz)</label><input id="f6"></div>
+  <div><label>Inductance (H)</label><input id="l6"></div>
+  <div><label>Capacitance (F)</label><input id="c6"></div>
+</div>
+<button onclick="reactance()">Calculate</button>
+<div id="out6" class="result"></div>
+</div>
+
+<!-- VOLTAGE DROP -->
+<div class="card">
+<h2>Voltage Drop</h2>
+<div class="grid">
+  <div><label>Current (A)</label><input id="i7"></div>
+  <div><label>Resistance (Ω)</label><input id="r7"></div>
+</div>
+<button onclick="vdrop()">Calculate</button>
+<div id="out7" class="result"></div>
+</div>
+
+<!-- EFFICIENCY -->
+<div class="card">
+<h2>Efficiency</h2>
+<div class="grid">
+  <div><label>Output Power (W)</label><input id="po"></div>
+  <div><label>Input Power (W)</label><input id="pi"></div>
+</div>
+<button onclick="effCalc()">Calculate</button>
+<div id="out8" class="result"></div>
+</div>
+
+</div>
+
+<script>
+function num(x){return parseFloat(x)}
+function bad(msg){return `<span class="warning">${msg}</span>`}
+
+function ohmsLaw(){
+  let V=num(v1.value), I=num(i1.value), R=num(r1.value);
+  const filled=[V,I,R].filter(x=>!isNaN(x)).length;
+  if(filled!==2) return out1.innerHTML=bad("Enter exactly TWO values.");
+  if(isNaN(V)) V=I*R;
+  if(isNaN(I)) I=V/R;
+  if(isNaN(R)) R=V/I;
+  out1.innerHTML=`<span class="badge">Voltage: ${V.toFixed(3)} V</span>
+  <span class="badge">Current: ${I.toFixed(3)} A</span>
+  <span class="badge">Resistance: ${R.toFixed(3)} Ω</span>`;
+}
+
+function powerCalc(){
+  let V=num(v2.value), I=num(i2.value);
+  if(isNaN(V)||isNaN(I)) return out2.innerHTML=bad("Enter voltage and current.");
+  out2.innerHTML=`<span class="badge">Power: ${(V*I).toFixed(3)} W</span>`;
+}
+
+function energyCalc(){
+  let P=num(p3.value), T=num(t3.value);
+  if(isNaN(P)||isNaN(T)) return out3.innerHTML=bad("Enter power and time.");
+  out3.innerHTML=`<span class="badge">Energy: ${(P*T/1000).toFixed(3)} kWh</span>`;
+}
+
+function acSingle(){
+  let V=num(v4.value), I=num(i4.value), PF=num(pf4.value);
+  if(isNaN(V)||isNaN(I)||PF<=0||PF>1) return out4.innerHTML=bad("Invalid inputs.");
+  out4.innerHTML=`<span class="badge">Real Power: ${(V*I*PF).toFixed(3)} W</span>`;
+}
+
+function acThree(){
+  let V=num(v5.value), I=num(i5.value), PF=num(pf5.value);
+  if(isNaN(V)||isNaN(I)||PF<=0||PF>1) return out5.innerHTML=bad("Invalid inputs.");
+  out5.innerHTML=`<span class="badge">Three-Phase Power: ${(Math.sqrt(3)*V*I*PF).toFixed(3)} W</span>`;
+}
+
+function reactance(){
+  let f=num(f6.value), L=num(l6.value), C=num(c6.value);
+  if(f<=0||isNaN(f)) return out6.innerHTML=bad("Frequency must be > 0.");
+  let html="";
+  if(!isNaN(L)) html+=`<span class="badge">XL: ${(2*Math.PI*f*L).toFixed(3)} Ω</span>`;
+  if(!isNaN(C)&&C>0) html+=`<span class="badge">XC: ${(1/(2*Math.PI*f*C)).toFixed(3)} Ω</span>`;
+  out6.innerHTML=html||bad("Enter inductance or capacitance.");
+}
+
+function vdrop(){
+  let I=num(i7.value), R=num(r7.value);
+  if(isNaN(I)||isNaN(R)) return out7.innerHTML=bad("Enter current and resistance.");
+  out7.innerHTML=`<span class="badge">Voltage Drop: ${(I*R).toFixed(3)} V</span>`;
+}
+
+function effCalc(){
+  let Po=num(po.value), Pi=num(pi.value);
+  if(isNaN(Po)||isNaN(Pi)||Pi<=0) return out8.innerHTML=bad("Invalid power values.");
+  let eff=(Po/Pi)*100;
+  out8.innerHTML=`<span class="badge">Efficiency: ${eff.toFixed(2)} %</span>`;
+}
+</script>
+
+</body>
+</html>
